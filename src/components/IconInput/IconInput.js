@@ -8,18 +8,18 @@ import VisuallyHidden from '../VisuallyHidden';
 
 const STYLES = {
   small: {
-    size: 14,
-    fontWidth: 400,
+    size: 16,
     borderWidth: 1,
+    height: 24,
   },
   large: {
-    size: 16,
-    fontWidth: 400,
+    size: 24,
     borderWidth: 2,
+    height: 36,
   },
 };
 
-const IconInput = ({ label, icon, width = 250, size, placeholder }) => {
+const IconInput = ({ label, icon, width = 250, size, ...delegated }) => {
   const styles = STYLES[size];
 
   if (!styles) {
@@ -30,13 +30,14 @@ const IconInput = ({ label, icon, width = 250, size, placeholder }) => {
     <Wrapper
       style={{
         '--size': styles.size + 'px',
+        '--height': styles.height + 'px',
         '--width': width + 'px',
-        '--fontSize': (styles.size / 16) + 'rem',
+        '--fontSize': styles.size + 'px',
         '--borderWidth': styles.borderWidth + 'px',
       }}
     >
       <Icon id={icon} size={styles.size} strokeWidth={styles.borderWidth} />
-      <NativeInput placeholder={placeholder} />
+      <NativeInput {...delegated} />
       <VisuallyHidden>{label}</VisuallyHidden>
     </Wrapper>
   );
@@ -47,12 +48,17 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   width: fit-content;
+  color: ${COLORS.gray700};
+
+  &:hover {
+    color: ${COLORS.black};
+  }
 `;
 
 const NativeInput = styled.input`
   position: absolute;
   background: transparent;
-  padding: 4px 24px;
+  padding-left: var(--height);
   border: none;
   border-bottom: revert;
   border-color: ${COLORS.black};
@@ -60,15 +66,20 @@ const NativeInput = styled.input`
   font-size: var(--fontSize);
   outline: none;
   appearance: none;
-  color: ${COLORS.gray700};
+  color: inherit;
+  font-weight: 700;
   width: var(--width);
+  height: var(--height);
+  outline-offset: 2px;
+
+  &::placeholder {
+    font-weight: 400;
+    color: ${COLORS.gray500};
+  }
 
   &:focus {
     outline: revert;
-  }
-
-  &:hover {
-    color: ${COLORS.black};
+    color: ${COLORS.gray700};
   }
 `;
 
