@@ -23,6 +23,7 @@ const SelectWraper = styled.select`
   position: absolute;
   inset: 0;
   opacity: 0;
+  appearance: none;
 `;
 
 const Wrapper = styled.div`
