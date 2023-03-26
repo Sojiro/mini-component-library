@@ -5,67 +5,72 @@ import styled from 'styled-components';
 import { COLORS } from '../../constants';
 import VisuallyHidden from '../VisuallyHidden';
 
-const BarFrameDefault = styled.div`
-  position: relative;
-  background: ${COLORS.transparentGray15};
-  box-shadow: inset 0px 2px 4px ${COLORS.transparentGray35};
-`;
-
-const BarFrameSmall = styled(BarFrameDefault)`
-  height: 8px;
-  line-height: 8px;
-  border-radius: 4px;
-`;
-
-const BarFrameMedium = styled(BarFrameDefault)`
-  height: 12px;
-  line-height: 12px;
-  border-radius: 4px;
-`;
-
-const BarFrameLarge = styled(BarFrameDefault)`
-  height: 24px;
-  line-height: 24px;
-  border-radius: 8px;
-`;
-
-const Bar = styled.span`
-  position: absolute;
-  background-color: ${COLORS.primary};
-  --calculated-radius: ${(props) => 4 * (props.value / 100)}px;
-  border-radius: 4px var(--calculated-radius) var(--calculated-radius) 4px;
-  height: inherit;
-  width: ${(props) => props.value}%;
-
-  ${BarFrameLarge} & {
-    height: 16px;
-    inset: 4px;
-    width: ${(props) => `calc(${props.value}% - 8px)`};
-  }
-`;
+const STYLES = {
+  small: {
+    height: 8,
+    borderRadius: 4,
+    padding: 0,
+  },
+  medium: {
+    height: 12,
+    borderRadius: 4,
+    padding: 0,
+  },
+  large: {
+    height: 12,
+    borderRadius: 8,
+    padding: 4,
+  },
+};
 
 const ProgressBar = ({ value, size }) => {
-  let Component;
-  switch (size) {
-    case 'small':
-      Component = BarFrameSmall;
-      break;
-    case 'medium':
-      Component = BarFrameMedium;
-      break;
-    case 'large':
-      Component = BarFrameLarge;
-      break;
-    default:
-      Component = BarFrameDefault;
+  const styles = STYLES[size];
+
+  if (!styles) {
+    throw new Error(`Unknown size ${size}`);
   }
 
+  let clampedValue = Math.min(100, value);
+
   return (
-    <Component role='progressbar'>
-      <Bar value={value}></Bar>
-      <VisuallyHidden>{value}% progress so far</VisuallyHidden>
-    </Component>
+    <Wrapper
+      role='progressbar'
+      aria-valuenow={clampedValue}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      style={{
+        '--borderRadius': styles.borderRadius + 'px',
+        'padding': styles.padding + 'px'
+      }}
+    >
+      <VisuallyHidden>{clampedValue}%</VisuallyHidden>
+      <BarWrapper>
+        <Bar
+          style={{
+            '--width': clampedValue + '%',
+            '--height': styles.height + 'px',
+          }}
+        ></Bar>
+      </BarWrapper>
+    </Wrapper>
   );
 };
 
+const Wrapper = styled.div`
+  background: ${COLORS.transparentGray15};
+  box-shadow: 0px 2px 4px 0px ${COLORS.transparentGray35} inset;
+  border-radius: var(--borderRadius);
+`;
+
+const BarWrapper = styled.div`
+border-radius: var(--borderRadius);
+overflow: hidden;
+`;
+
+const Bar = styled.div`
+  width: var(--width);
+  background: ${COLORS.primary};
+  height: var(--height);
+  border-radius: var(--borderRadius) 0 0 var(--borderRadius);
+`;
 export default ProgressBar;
